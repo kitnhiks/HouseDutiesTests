@@ -41,6 +41,9 @@ public class AdminTest{
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
 		Response response = HttpHelper.getResource(HOUSE+"/"+newHouse1Id, headers);
+		if (response.getStatusCode()!=200){
+			fail(response.getStatusCode()+" : "+ response.asString());
+		}
 		JsonPath house1Json = new JsonPath (response.asString());
 		
 		// Created Houses ?

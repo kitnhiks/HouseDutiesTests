@@ -5,11 +5,12 @@ import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_HEADER;
 import static com.kitnhiks.houseduties.HttpHelper.BASE_URL;
 import static com.kitnhiks.houseduties.HttpHelper.assertResponseStatusCode;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -18,61 +19,71 @@ import com.kitnhiks.houseduties.HttpHelper;
 
 public class HouseAPITest{
 
-	private static final String HOUSE = BASE_URL+"house";
+	private static final String HOUSE_URL = BASE_URL+"house/";
+	private static final String LOGIN_URL = HOUSE_URL+"login/";
 	private ArrayList<String> createdHouseIds = new ArrayList<String>();
 
 	@Test
-	public void should_200_POST_GET_DELETE_house_with_minimum_correct_json(){
+	public void should_200_POST_Login_GET_DELETE_house_with_minimum_correct_json(){
 		String newHouse = "{\"name\":\"TEST_HOUSE\", \"password\":\"TEST_HOUSE_PWD\"}";
 
 		// POST house
-		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE, newHouse);
+		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
 		assertResponseStatusCode(200, postHouseResponse);
-
-		// GET house
 		String id = new JsonPath(postHouseResponse.asString()).getString("id");
 		createdHouseIds.add(id);
-		assertResponseStatusCode(200, HttpHelper.getResource(HOUSE+"/"+id));
+		
+		// GET house
+		assertResponseStatusCode(200, HttpHelper.getResource(HOUSE_URL+id));
 
+		// Login house
+		Response loginHouseResponse = HttpHelper.postResourceJson(LOGIN_URL, newHouse);
+		assertResponseStatusCode(200, loginHouseResponse);
+		assertEquals(id, new JsonPath(loginHouseResponse.asString()).getString("id"));
+		
 		// DELETE house
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
-		assertResponseStatusCode(200, HttpHelper.deleteResource(HOUSE+"/"+id, headers));
+		assertResponseStatusCode(200, HttpHelper.deleteResource(HOUSE_URL+id, headers));
 	}
 
 	@Test
 	public void should_400_POST_house_with_incorrect_json(){
 		String newHouse = "{\"badkey\":\"TEST_HOUSE\", \"password\":\"TEST_HOUSE_PWD\"}";
-		Response response = HttpHelper.postResourceJson(HOUSE, newHouse);
-		assertResponseStatusCode(400, response);
+		assertResponseStatusCode(400, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
 	}
 
 	@Test
 	public void should_400_POST_house_with_invalid_json(){
 		String newHouse = "name\":\"TEST_HOUSE\", \"password\":\"TEST_HOUSE_PWD\"}";
-		Response response = HttpHelper.postResourceJson(HOUSE, newHouse);
-		assertResponseStatusCode(400, response);
+		assertResponseStatusCode(400, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
 	}
 
+	@Test
+	public void should_404_loging_unexisting_house(){
+		String newHouse = "{\"name\":\"UKNWN_HOUSE\", \"password\":\"UKNWN_HOUSE_PWD\"}";
+		assertResponseStatusCode(404, HttpHelper.postResourceJson(LOGIN_URL, newHouse));
+	}
+	
 	@Test
 	public void should_404_GET_house_unexisting(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
-		assertResponseStatusCode(404, HttpHelper.getResource(HOUSE+"/0", headers));
+		assertResponseStatusCode(404, HttpHelper.getResource(HOUSE_URL+"0", headers));
 	}
 
 	@Test
 	public void should_401_DELETE_house(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, "BAD_KEY");
-		assertResponseStatusCode(404, HttpHelper.getResource(BASE_URL+"house/0", headers));
+		assertResponseStatusCode(404, HttpHelper.getResource(HOUSE_URL+"0", headers));
 	}
 
 	@Test
 	public void should_404_DELETE_house_unexisting(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
-		assertResponseStatusCode(404, HttpHelper.deleteResource(BASE_URL+"house/0", headers));
+		assertResponseStatusCode(404, HttpHelper.deleteResource(HOUSE_URL+"0", headers));
 	}
 
 	////////// Tools //////////
@@ -83,7 +94,7 @@ public class HouseAPITest{
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
 		for (String id : createdHouseIds){
-			HttpHelper.deleteResource(HOUSE+"/"+id, headers);
+			HttpHelper.deleteResource(HOUSE_URL+id, headers);
 		}
 		createdHouseIds = new ArrayList<String>();
 	}

@@ -9,27 +9,27 @@ import com.jayway.restassured.path.json.JsonPath;
 
 
 public class ModelHelper {
-	
+
 	public static void assertJsonIsHouse(JsonPath json){
 		Map<String, String> house = json.get();
 		assertJsonIsHouse(house);
 	}
-	
+
 	public static void assertJsonIsHouse(Map<String, String> json){
-		assertThat(json.keySet()).containsOnly("id", "name", "occupants", "password");
+		assertThat(json.keySet()).containsOnly("id", "name", "occupants", "password", "tasks");
 		assertThat(json.get("password")).isNull();
 	}
-	
+
 	public static void assertJsonIsListOfHouse(JsonPath json){
 		List<Map<String, String>> houseList = json.getList("");
-		
+
 		for (Map<String, String> house : houseList){
 			assertJsonIsHouse(house);
 		}
 	}
-	
+
 	public static void assertJsonIsOccupant(Map<String, String> json){
-		assertThat(json.keySet()).containsOnly("key", "name", "password", "email", "points");
+		assertThat(json.keySet()).containsOnly("key", "name", "password", "email", "points", "tasks");
 		assertThat(json.get("password")).isNull();
 	}
 }

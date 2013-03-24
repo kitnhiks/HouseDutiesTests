@@ -5,14 +5,10 @@ import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_HEADER;
 import static com.kitnhiks.houseduties.HttpHelper.BASE_URL;
 import static com.kitnhiks.houseduties.HttpHelper.assertResponseStatusCode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.junit.AfterClass;
 import org.junit.Test;
 
-import com.jayway.restassured.path.json.JsonPath;
-import com.jayway.restassured.response.Response;
 import com.kitnhiks.houseduties.HttpHelper;
 
 public class HousesAPITest{
@@ -27,10 +23,14 @@ public class HousesAPITest{
 	}
 
 	@Test
-	public void should_401_GET_houses(){
+	public void should_403_GET_houses_with_bad_key(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, "BAD_KEY");
-		assertResponseStatusCode(401, HttpHelper.getResource(HOUSES, headers));
-		assertResponseStatusCode(401, HttpHelper.getResource(HOUSES));
+		assertResponseStatusCode(403, HttpHelper.getResource(HOUSES, headers));
+	}
+
+	@Test
+	public void should_403_GET_houses_with_no_key(){
+		assertResponseStatusCode(403, HttpHelper.getResource(HOUSES));
 	}
 }

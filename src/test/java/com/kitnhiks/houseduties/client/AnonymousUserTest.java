@@ -24,8 +24,11 @@ public class AnonymousUserTest{
 	@Test
 	public void as_a_anonymous_user_i_can_create_a_new_house_and_retrieve_its_id_and_a_token(){
 		// Create a new house
-		String newHouse = "{\"name\":\"TEST_HOUSE\", \"password\":\"TEST_HOUSE_PWD\"}";
+		String newHouse = "{\"name\":\"TEST_HOUSE_AnonymousUserTest1\", \"password\":\"TEST_HOUSE_PWD\"}";
 		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
+		if (postHouseResponse.getStatusCode() != 200){
+			fail(postHouseResponse.getStatusLine());
+		}
 
 		// Id ?
 		String id = new JsonPath(postHouseResponse.asString()).getString("id");
@@ -35,31 +38,36 @@ public class AnonymousUserTest{
 		// Token ?
 		assertNotNull(postHouseResponse.header(AUTH_KEY_HEADER));
 	}
-	
+
 	@Test
 	public void as_an_anonymous_user_i_can_log_in_and_retrieve_my_house_id_and_a_token(){
 		// Create a new house
-		String newHouse = "{\"name\":\"TEST_HOUSE\", \"password\":\"TEST_HOUSE_PWD\"}";
+		String newHouse = "{\"name\":\"TEST_HOUSE_AnonymousUserTest2\", \"password\":\"TEST_HOUSE_PWD\"}";
 		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
-				
+		if (postHouseResponse.getStatusCode() != 200){
+			fail(postHouseResponse.getStatusLine());
+		}
 		createdHouseIds.add(new JsonPath(postHouseResponse.asString()).getString("id"));
-		
+
 		// Login to an existing house
 		Response getHouseResponse = HttpHelper.postResourceJson(HOUSE_URL+"/login", newHouse);
-		
-		int nbTry = 0;
-		int maxTry = 5;
-		while (nbTry <= maxTry && getHouseResponse.getStatusCode()!=200){
-			getHouseResponse = HttpHelper.postResourceJson(HOUSE_URL+"/login", newHouse);
-			try{
-				Thread.sleep(2000);
-			}catch(Exception e){}
-			nbTry++;
+		if (getHouseResponse.getStatusCode() != 200){
+			fail(getHouseResponse.getStatusLine());
 		}
-		if (nbTry == maxTry){
-			fail(getHouseResponse.getStatusCode()+" : "+ getHouseResponse.asString());
-		}
-		
+
+		//		int nbTry = 0;
+		//		int maxTry = 5;
+		//		while (nbTry <= maxTry && getHouseResponse.getStatusCode()!=200){
+		//			getHouseResponse = HttpHelper.postResourceJson(HOUSE_URL+"/login", newHouse);
+		//			try{
+		//				Thread.sleep(2000);
+		//			}catch(Exception e){}
+		//			nbTry++;
+		//		}
+		//		if (nbTry == maxTry){
+		//			fail(getHouseResponse.getStatusCode()+" : "+ getHouseResponse.asString());
+		//		}
+
 		// Id ?
 		String id = new JsonPath(getHouseResponse.asString()).getString("id");
 		assertNotNull(id);
@@ -67,7 +75,7 @@ public class AnonymousUserTest{
 		// Token ?
 		assertNotNull(getHouseResponse.header(AUTH_KEY_HEADER));
 	}
-	
+
 	@After
 	public void cleanData(){
 		// Remove created houses

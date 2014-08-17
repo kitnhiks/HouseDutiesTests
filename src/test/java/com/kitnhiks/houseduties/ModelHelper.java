@@ -16,7 +16,7 @@ public class ModelHelper {
 	}
 
 	public static void assertJsonIsHouse(Map<String, String> json){
-		assertThat(json.keySet()).containsOnly("id", "name", "occupants", "password", "tasks");
+		assertThat(json.keySet()).containsOnly("id", "name", "occupants", "tasks");
 		assertThat(json.get("password")).isNull();
 	}
 

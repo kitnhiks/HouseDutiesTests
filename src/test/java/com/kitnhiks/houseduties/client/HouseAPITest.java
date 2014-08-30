@@ -34,7 +34,9 @@ public class HouseAPITest{
 		createdHouseIds.add(id);
 
 		// GET house
-		assertResponseStatusCode(200, HttpHelper.getResource(HOUSE_URL+id));
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
+		assertResponseStatusCode(200, HttpHelper.getResource(HOUSE_URL+id, headers));
 
 		// Login house
 		Response loginHouseResponse = HttpHelper.postResourceJson(LOGIN_URL, newHouse);
@@ -42,21 +44,19 @@ public class HouseAPITest{
 		assertEquals(id, new JsonPath(loginHouseResponse.asString()).getString("id"));
 
 		// DELETE house
-		HashMap<String,String> headers = new HashMap<String,String>();
-		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
 		assertResponseStatusCode(200, HttpHelper.deleteResource(HOUSE_URL+id, headers));
 	}
 
 	@Test
-	public void should_400_POST_house_with_incorrect_json(){
+	public void should_500_POST_house_with_incorrect_json(){
 		String newHouse = "{\"badkey\":\"TEST_HOUSE_HouseAPITest\", \"password\":\"TEST_HOUSE_PWD\"}";
-		assertResponseStatusCode(400, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
+		assertResponseStatusCode(500, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
 	}
 
 	@Test
-	public void should_400_POST_house_with_invalid_json(){
+	public void should_500_POST_house_with_invalid_json(){
 		String newHouse = "name\":\"TEST_HOUSE_HouseAPITest\", \"password\":\"TEST_HOUSE_PWD\"}";
-		assertResponseStatusCode(400, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
+		assertResponseStatusCode(500, HttpHelper.postResourceJson(HOUSE_URL, newHouse));
 	}
 
 	@Test

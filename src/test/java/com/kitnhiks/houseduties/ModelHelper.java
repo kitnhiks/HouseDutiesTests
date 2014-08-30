@@ -29,7 +29,7 @@ public class ModelHelper {
 	}
 
 	public static void assertJsonIsOccupant(Map<String, String> json){
-		assertThat(json.keySet()).containsOnly("key", "name", "password", "email", "points", "tasks");
+		assertThat(json.keySet()).containsOnly("id", "name", "password", "email", "points", "tasks");
 		assertThat(json.get("password")).isNull();
 	}
 }

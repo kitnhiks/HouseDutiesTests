@@ -10,7 +10,7 @@ import com.jayway.restassured.response.Response;
 
 public class HttpHelper {
 	
-	public static String BASE_URL = "http://127.0.0.1:8080/";
+	public static String BASE_URL = "http://127.0.0.1:8080/s/";
 	public static String AUTH_KEY_HEADER = "X-AuthKey";
 	public static String AUTH_KEY_ADMIN = "kukuku";
 	private static String jsonContentType = "application/json; charset=utf-8";

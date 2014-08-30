@@ -43,19 +43,19 @@ public class OccupantAPITest{
 	}
 
 	@Test
-	public void should_400_POST_occupant_with_incorrect_json(){
+	public void should_500_POST_occupant_with_incorrect_json(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
 		String newOccupant = "{\"badkey\":\"TEST_INCORRECT_OCCUPANT\", \"password\":\"TEST_OCCUPANT_PWD\"}";
-		assertResponseStatusCode(400, HttpHelper.postResourceJson(OCCUPANT_URL, newOccupant, headers));
+		assertResponseStatusCode(500, HttpHelper.postResourceJson(OCCUPANT_URL, newOccupant, headers));
 	}
 
 	@Test
-	public void should_400_POST_occupant_with_invalid_json(){
+	public void should_500_POST_occupant_with_invalid_json(){
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, AUTH_KEY_ADMIN);
 		String newOccupant = "name\":\"TEST_INVALID_OCCUPANT\", \"password\":\"TEST_OCCUPANT_PWD\"}";
-		assertResponseStatusCode(400, HttpHelper.postResourceJson(OCCUPANT_URL, newOccupant, headers));
+		assertResponseStatusCode(500, HttpHelper.postResourceJson(OCCUPANT_URL, newOccupant, headers));
 	}
 
 	@Test

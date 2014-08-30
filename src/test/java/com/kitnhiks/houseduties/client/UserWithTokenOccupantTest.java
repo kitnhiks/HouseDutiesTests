@@ -102,7 +102,7 @@ public class UserWithTokenOccupantTest{
 		List<Map<String, String>> occupantsList = new JsonPath(getOccupantsResponse.asString()).getList("");
 
 		assertEquals(1, occupantsList.size());
-		Map <String, String> occupant =occupantsList.get(0);
+		Map <String, String> occupant = occupantsList.get(0);
 		assertJsonIsOccupant(occupant);
 		assertEquals("TEST_NEW_OCCUPANT_WITHOUT_PASSWORD", occupant.get("name"));
 		assertEquals(0, occupant.get("points"));

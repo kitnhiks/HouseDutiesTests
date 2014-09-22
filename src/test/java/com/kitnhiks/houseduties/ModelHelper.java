@@ -5,6 +5,8 @@ import static org.fest.assertions.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONObject;
+
 import com.jayway.restassured.path.json.JsonPath;
 
 
@@ -31,5 +33,9 @@ public class ModelHelper {
 	public static void assertJsonIsOccupant(Map<String, String> json){
 		assertThat(json.keySet()).containsOnly("id", "name", "password", "email", "points", "tasks");
 		assertThat(json.get("password")).isNull();
+	}
+	
+	public static void assertJsonIsTask(JSONObject json){
+		assertThat(json.keySet()).containsOnly("id", "name", "points", "categoryId", "priority", "doneDate");
 	}
 }

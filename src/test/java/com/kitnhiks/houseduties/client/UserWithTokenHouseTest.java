@@ -79,9 +79,7 @@ public class UserWithTokenHouseTest{
 	}
 
 
-	public void as_an_occupant_i_can_visualize_the_house_highscores(){
-		fail("tbi");
-	}
+	
 
 	public void as_an_nonhabitant_i_can_not_visualize_any_info_from_the_house(){
 		fail("tbi");

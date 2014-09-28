@@ -35,7 +35,11 @@ public class ModelHelper {
 		assertThat(json.get("password")).isNull();
 	}
 	
-	public static void assertJsonIsTask(JSONObject json){
+	public static void assertJsonIsAssignedTask(JSONObject json){
 		assertThat(json.keySet()).containsOnly("id", "name", "points", "categoryId", "priority", "doneDate");
+	}
+	
+	public static void assertJsonIsTask(JSONObject json){
+		assertThat(json.keySet()).containsOnly("id", "name", "points", "categoryId");
 	}
 }

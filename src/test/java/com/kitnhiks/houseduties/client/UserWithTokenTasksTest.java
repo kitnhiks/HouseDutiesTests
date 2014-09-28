@@ -3,6 +3,7 @@ package com.kitnhiks.houseduties.client;
 import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_ADMIN;
 import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_HEADER;
 import static com.kitnhiks.houseduties.HttpHelper.BASE_URL;
+import static com.kitnhiks.houseduties.ModelHelper.assertJsonIsAssignedTask;
 import static com.kitnhiks.houseduties.ModelHelper.assertJsonIsTask;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -58,7 +59,6 @@ public class UserWithTokenTasksTest{
 		createdOccupantsIds.add(occupantId);
 	}
 
-	@Test
 	public void as_a_connected_user_i_can_add_a_task_to_the_house_todo_list(){
 		fail("tbi");
 		// List all tasks
@@ -107,7 +107,7 @@ public class UserWithTokenTasksTest{
 
 		assertEquals(1, occupantTasksList.size());
 		JSONObject task = (JSONObject) occupantTasksList.get(0);
-		assertJsonIsTask(task);
+		assertJsonIsAssignedTask(task);
 		assertEquals(newTaskId, ((Number) task.get("id")).intValue());
 
 		// Retrieve occupant and check his points 
@@ -123,10 +123,75 @@ public class UserWithTokenTasksTest{
 	}
 
 	@Test
-	public void as_an_nonhabitant_i_can_not_add_any_task_to_the_occupant_of_a_house(){
-		fail("tbi");
+	public void as_an_non_occupant_i_can_not_add_any_task_to_the_occupant_of_a_house(){
+
+		// Create a new house
+		String newHouse = "{\"name\":\"TEST_HOUSE2\", \"password\":\"TEST_HOUSE_PWD\"}";
+		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
+		if (postHouseResponse.getStatusCode()!=200){
+			fail (postHouseResponse.getStatusLine());
+		}
+		// Id
+		String house2Id = new JsonPath(postHouseResponse.asString()).getString("id");
+		createdHouseIds.add(house2Id);
+		// Token
+		String token2 = postHouseResponse.header(AUTH_KEY_HEADER);
+
+		// List all tasks
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token2);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+
+		if (getTasksResponse.getStatusCode()!=200){
+			fail(getTasksResponse.getStatusLine());
+		}
+
+		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
+
+		// Choose one task
+		JSONObject newTask = (JSONObject) tasksList.get(tasksList.size()/2);
+		String newTaskJson = JSONValue.toJSONString(newTask);
+
+		// Add task to occupant	
+		Response postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant/"+occupantId+"/task", newTaskJson, headers);
+		assertEquals(403, postOccupantResponse.getStatusCode());
 	}
 
+	@Test
+	public void as_a_connected_user_i_can_retrieve_all_tasks(){
+		// List all tasks
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+
+		if (getTasksResponse.getStatusCode()!=200){
+			fail(getTasksResponse.getStatusLine());
+		}
+
+		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
+		for(Object task : tasksList){
+			assertJsonIsTask((JSONObject) task);
+		}
+	}
+	
+	@Test
+	public void as_a_connected_user_i_can_retrieve_all_tasks_from_a_given_category(){
+		// List all tasks
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL+1, headers);
+
+		if (getTasksResponse.getStatusCode()!=200){
+			fail(getTasksResponse.getStatusLine());
+		}
+
+		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
+		for(Object task : tasksList){
+			assertJsonIsTask((JSONObject) task);
+			assertEquals(1, ((Number)((JSONObject) task).get("categoryId")).intValue());
+		}
+	}
+	
 	public void cleanHouseTasks(){
 		// TODO
 	}

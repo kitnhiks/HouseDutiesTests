@@ -13,6 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -25,6 +28,7 @@ import com.kitnhiks.houseduties.HttpHelper;
 public class UserWithTokenOccupantTest{
 
 	private static final String HOUSE_URL = BASE_URL+"house/";
+	private static final String TASKS_URL = BASE_URL+"tasks/";
 	private static ArrayList<String> createdHouseIds = new ArrayList<String>();
 	private static ArrayList<String> createdOccupantsIds = new ArrayList<String>();
 
@@ -140,8 +144,8 @@ public class UserWithTokenOccupantTest{
 	}
 
 	@Test
-	public void as_a_connected_user_i_can_list_all_occupants_from_my_house(){
-		// Retrieve created house
+	public void as_a_connected_user_i_can_list_all_occupants_from_my_house_in_order_of_insertion(){
+		// Add occupants
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, token);
 
@@ -181,6 +185,79 @@ public class UserWithTokenOccupantTest{
 	}
 
 	@Test
+	public void as_a_connected_user_i_can_visualize_the_house_highscores(){
+		// Add occupants
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token);
+
+		ArrayList<String> newOccupants = new ArrayList<String>();
+		newOccupants.add("{\"name\":\"CTEST_OCCUPANT1\"}");
+		newOccupants.add("{\"name\":\"ATEST_OCCUPANT2\", \"password\":\"TEST_OCCUPANT2_PWD\"}");
+		newOccupants.add("{\"name\":\"BTEST_OCCUPANT3\"}");
+
+		Response postOccupantResponse;
+		ArrayList<String> ids = new ArrayList<String>();
+		String id;
+		for (String newOccupant : newOccupants){
+			postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant", newOccupant, headers);
+			if (postOccupantResponse.getStatusCode()!=200){
+				fail(postOccupantResponse.getStatusLine());
+			}
+			// Id ?
+			id = new JsonPath(postOccupantResponse.asString()).getString("id");
+			ids.add(id);
+			createdOccupantsIds.add(id);
+		}
+
+		// List all tasks
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+		if (getTasksResponse.getStatusCode()!=200){
+			fail(getTasksResponse.getStatusLine());
+		}
+		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
+
+		// Choose one task
+		JSONObject newTask = (JSONObject) tasksList.get(0);
+		String newTaskJson = JSONValue.toJSONString(newTask);
+
+		// Add 2 tasks to occupant 1
+		for (int i=0; i<2; i++){
+			postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant/"+ids.get(0)+"/task", newTaskJson, headers);
+			if (postOccupantResponse.getStatusCode()!=200){
+				fail(postOccupantResponse.getStatusLine());
+			}
+		}
+
+		// Add 3 tasks to occupant 2
+		for (int i=0; i<3; i++){
+			postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant/"+ids.get(1)+"/task", newTaskJson, headers);
+			if (postOccupantResponse.getStatusCode()!=200){
+				fail(postOccupantResponse.getStatusLine());
+			}
+		}
+
+		// Add 1 tasks to occupant 3
+		postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant/"+ids.get(2)+"/task", newTaskJson, headers);
+		if (postOccupantResponse.getStatusCode()!=200){
+			fail(postOccupantResponse.getStatusLine());
+		}
+
+		// Retrieve occupant ladder and check order
+		Response getOccupantsLadder = HttpHelper.getResource(HOUSE_URL+houseId+"/occupants/ladder", headers);
+		if (getOccupantsLadder.getStatusCode()!=200){
+			fail(getOccupantsLadder.getStatusLine());
+		}
+
+		JSONArray occupantsList = (JSONArray) JSONValue.parse(getOccupantsLadder.asString());
+
+		assertEquals(3, occupantsList.size());
+
+		assertEquals("ATEST_OCCUPANT2", (String) ((JSONObject) occupantsList.get(0)).get("name"));
+		assertEquals("CTEST_OCCUPANT1", (String) ((JSONObject) occupantsList.get(1)).get("name"));
+		assertEquals("BTEST_OCCUPANT3", (String) ((JSONObject) occupantsList.get(2)).get("name"));
+	}
+
+	@Test
 	public void as_a_connected_user_i_cannot_add_an_occupant_to_another_house(){
 		// Create a new house
 		String newHouse = "{\"name\":\"TEST_HOUSE2\", \"password\":\"TEST_HOUSE2_PWD\"}";
@@ -203,6 +280,9 @@ public class UserWithTokenOccupantTest{
 		assertResponseStatusCode(403, HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant", newOccupant, headers));
 
 	}
+
+
+
 
 	@After
 	public void cleanOccupants(){

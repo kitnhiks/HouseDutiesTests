@@ -144,7 +144,7 @@ public class UserWithTokenOccupantTest{
 	}
 
 	@Test
-	public void as_a_connected_user_i_can_list_all_occupants_from_my_house_in_order_of_insertion(){
+	public void as_a_connected_user_i_can_list_all_occupants_from_my_house_in_alphabetical_order(){
 		// Add occupants
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, token);
@@ -179,9 +179,70 @@ public class UserWithTokenOccupantTest{
 
 		assertEquals(3, occupantsList.size());
 
-		assertEquals("CTEST_OCCUPANT1", occupantsList.get(0).get("name"));
-		assertEquals("ATEST_OCCUPANT2", occupantsList.get(1).get("name"));
-		assertEquals("BTEST_OCCUPANT3", occupantsList.get(2).get("name"));
+
+		assertEquals("ATEST_OCCUPANT2", occupantsList.get(0).get("name"));
+		assertEquals("BTEST_OCCUPANT3", occupantsList.get(1).get("name"));
+		assertEquals("CTEST_OCCUPANT1", occupantsList.get(2).get("name"));
+	}
+
+	@Test
+	public void as_a_connected_user_i_can_list_all_occupants_from_my_house_in_alphabetical_order_even_after_adding_a_task(){
+		// Add occupants
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token);
+
+		ArrayList<String> newOccupants = new ArrayList<String>();
+		newOccupants.add("{\"name\":\"CTEST_OCCUPANT1\"}");
+		newOccupants.add("{\"name\":\"ATEST_OCCUPANT2\", \"password\":\"TEST_OCCUPANT2_PWD\"}");
+		newOccupants.add("{\"name\":\"BTEST_OCCUPANT3\"}");
+
+
+		Response postOccupantResponse;
+		ArrayList<String> ids = new ArrayList<String>();
+		String id;
+		for (String newOccupant : newOccupants){
+			postOccupantResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant", newOccupant, headers);
+			if (postOccupantResponse.getStatusCode()!=200){
+				fail(postOccupantResponse.getStatusLine());
+			}
+			// Id ?
+			id = new JsonPath(postOccupantResponse.asString()).getString("id");
+			ids.add(id);
+			createdOccupantsIds.add(id);
+		}
+
+		// Add task to occupant	
+		// List all tasks
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+
+		if (getTasksResponse.getStatusCode()!=200){
+			fail(getTasksResponse.getStatusLine());
+		}
+
+		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
+
+		// Choose one task
+		JSONObject newTask = (JSONObject) tasksList.get(tasksList.size()/2);
+		String newTaskJson = JSONValue.toJSONString(newTask);
+		Response postTaskResponse = HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant/"+ids.get(1)+"/task", newTaskJson, headers);
+		if (postTaskResponse.getStatusCode()!=200){
+			fail(postTaskResponse.getStatusLine());
+		}
+
+		Response getOccupantsResponse = HttpHelper.getResource(HOUSE_URL+houseId+"/occupants", headers);
+
+		if (getOccupantsResponse.getStatusCode()!=200){
+			fail(getOccupantsResponse.getStatusLine());
+		}
+
+		List<Map<String, String>> occupantsList = new JsonPath(getOccupantsResponse.asString()).getList("");
+
+		assertEquals(3, occupantsList.size());
+
+
+		assertEquals("ATEST_OCCUPANT2", occupantsList.get(0).get("name"));
+		assertEquals("BTEST_OCCUPANT3", occupantsList.get(1).get("name"));
+		assertEquals("CTEST_OCCUPANT1", occupantsList.get(2).get("name"));
 	}
 
 	@Test
@@ -280,9 +341,6 @@ public class UserWithTokenOccupantTest{
 		assertResponseStatusCode(403, HttpHelper.postResourceJson(HOUSE_URL+houseId+"/occupant", newOccupant, headers));
 
 	}
-
-
-
 
 	@After
 	public void cleanOccupants(){

@@ -22,8 +22,8 @@ public class UserWithTokenHouseTest{
 	private static final String HOUSE_URL = BASE_URL+"house/";
 	private static ArrayList<String> createdHouseIds = new ArrayList<String>();
 
-	@Test
-	public void as_a_connected_user_i_can_retrieve_a_house_with_its_given_id(){
+	@Test public void 
+	as_a_connected_user_i_can_retrieve_a_house_informations_with_its_given_id(){
 		// Create a new house
 		String newHouse = "{\"name\":\"TEST_HOUSE_UserWithTokenHouseTest_1\", \"password\":\"TEST_HOUSE_PWD\"}";
 		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
@@ -49,8 +49,8 @@ public class UserWithTokenHouseTest{
 		assertJsonIsHouse(new JsonPath(getHouseResponse.asString()));
 	}
 
-	@Test
-	public void as_a_connected_user_i_can_delete_my_house(){
+	@Test public void 
+	as_a_connected_user_i_can_delete_my_house(){
 		// Create a new house
 		String newHouse = "{\"name\":\"TEST_HOUSE_UserWithTokenHouseTest_2\", \"password\":\"TEST_HOUSE_PWD\"}";
 		Response postHouseResponse = HttpHelper.postResourceJson(HOUSE_URL, newHouse);
@@ -74,18 +74,18 @@ public class UserWithTokenHouseTest{
 		createdHouseIds.remove(houseId);
 	}
 
-	public void as_an_occupant_i_can_share_one_of_my_houses_to_another_person_by_mail(){
+	public void 
+	as_an_occupant_i_can_share_one_of_my_houses_to_another_person_by_mail(){
 		fail("tbi");
 	}
 
-
-	
-
-	public void as_an_nonhabitant_i_can_not_visualize_any_info_from_the_house(){
+	public void 
+	as_an_nonhabitant_i_can_not_visualize_any_info_from_the_house(){
 		fail("tbi");
 	}
 
-	public void as_an_nonhabitant_i_can_not_add_any_task_to_the_house(){
+	public void 
+	as_an_nonhabitant_i_can_not_add_any_task_to_the_house(){
 		fail("tbi");
 	}
 

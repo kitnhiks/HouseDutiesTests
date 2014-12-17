@@ -4,6 +4,7 @@ import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_ADMIN;
 import static com.kitnhiks.houseduties.HttpHelper.AUTH_KEY_HEADER;
 import static com.kitnhiks.houseduties.HttpHelper.BASE_URL;
 import static com.kitnhiks.houseduties.ModelHelper.assertJsonIsTask;
+import static com.kitnhiks.houseduties.ModelHelper.assertJsonIsCategory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -25,6 +26,7 @@ public class UserWithTokenTasksTest{
 
 	private static final String HOUSE_URL = BASE_URL+"house/";
 	private static final String TASKS_URL = BASE_URL+"tasks/";
+	private static final String CATEGORIES_URL = TASKS_URL+"categories/";
 	private static ArrayList<String> createdHouseIds = new ArrayList<String>();
 	private static ArrayList<String> createdOccupantsIds = new ArrayList<String>();
 
@@ -63,7 +65,7 @@ public class UserWithTokenTasksTest{
 		// List all tasks
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, token);
-		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL+1, headers);
 
 		if (getTasksResponse.getStatusCode()!=200){
 			fail(getTasksResponse.getStatusLine());
@@ -72,6 +74,23 @@ public class UserWithTokenTasksTest{
 		JSONArray tasksList = (JSONArray) JSONValue.parse(getTasksResponse.asString());
 		for(Object task : tasksList){
 			assertJsonIsTask((JSONObject) task);
+		}
+	}
+	
+	@Test
+	public void as_a_connected_user_i_can_retrieve_all_categories(){
+		// List all categories
+		HashMap<String,String> headers = new HashMap<String,String>();
+		headers.put(AUTH_KEY_HEADER, token);
+		Response getCategoriesResponse = HttpHelper.getResource(CATEGORIES_URL, headers);
+
+		if (getCategoriesResponse.getStatusCode()!=200){
+			fail(getCategoriesResponse.getStatusLine());
+		}
+
+		JSONArray categoriesList = (JSONArray) JSONValue.parse(getCategoriesResponse.asString());
+		for(Object category : categoriesList){
+			assertJsonIsCategory((JSONObject) category);
 		}
 	}
 	

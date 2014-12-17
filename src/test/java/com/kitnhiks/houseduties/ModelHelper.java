@@ -42,4 +42,8 @@ public class ModelHelper {
 	public static void assertJsonIsTask(JSONObject json){
 		assertThat(json.keySet()).containsOnly("id", "name", "points", "categoryId");
 	}
+	
+	public static void assertJsonIsCategory(JSONObject json){
+		assertThat(json.keySet()).containsOnly("id", "name");
+	}
 }

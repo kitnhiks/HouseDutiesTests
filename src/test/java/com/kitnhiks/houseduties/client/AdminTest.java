@@ -25,7 +25,7 @@ public class AdminTest{
 	private ArrayList<String> createdHouseIds = new ArrayList<String>();
 
 	@Test
-	public void as_an_admin_i_can_retrieve_created_houses(){
+	public void as_an_admin_i_can_retrieve_informations_of_a_created_houses(){
 		// Create House 1
 		String newHouse1Name = "TEST_HOUSE_1";
 		String newHouse1Pass = "TEST_HOUSE_PWD_1";

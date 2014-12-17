@@ -68,7 +68,7 @@ public class UserWithTokenOccupantTasksTest{
 		// List all tasks
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, token);
-		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL+1, headers);
 
 		if (getTasksResponse.getStatusCode()!=200){
 			fail(getTasksResponse.getStatusLine());
@@ -133,7 +133,7 @@ public class UserWithTokenOccupantTasksTest{
 		// List all tasks
 		HashMap<String,String> headers = new HashMap<String,String>();
 		headers.put(AUTH_KEY_HEADER, token2);
-		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL+1, headers);
 
 		if (getTasksResponse.getStatusCode()!=200){
 			fail(getTasksResponse.getStatusLine());
@@ -167,7 +167,7 @@ public class UserWithTokenOccupantTasksTest{
 		createdOccupantsIds.add(id);
 
 		// List all tasks
-		Response getTasksResponse = HttpHelper.getResource(TASKS_URL, headers);
+		Response getTasksResponse = HttpHelper.getResource(TASKS_URL+1, headers);
 		if (getTasksResponse.getStatusCode()!=200){
 			fail(getTasksResponse.getStatusLine());
 		}
